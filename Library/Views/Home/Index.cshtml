@@ -1,0 +1,31 @@
+@{
+  Layout = "_Layout";
+}
+
+<h3>Click on the menu options below to manage your factory.</h3>
+
+<div class="row">
+  <div class="col-6">
+    <h4>Patrons</h4>
+    @foreach(var engineer in ViewBag.Patrons)
+    {
+      <div class="row">
+        <p>@Html.ActionLink($"{engineer.Name}", "Details", "Patrons", new { id = engineer.PatronId })</p>
+      </div>
+    }
+  </div>
+  <div class="col-6">
+    <h4>Books</h4>
+    @foreach(var machine in ViewBag.Books)
+    {
+      <div class="row">
+        <p>@Html.ActionLink($"{machine.Name}", "Details", "Books", new { id = machine.BookId })</p>
+      </div>
+    }
+  </div>
+</div>
+<div class="margin center">
+  <p>@Html.ActionLink("View Books", "Index", "Books")</p>
+  <p>@Html.ActionLink("View Patrons", "Index", "Patrons")</p>
+</div>
+

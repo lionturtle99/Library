@@ -1,0 +1,87 @@
+body {
+  background-color: rgb(34, 29, 29);
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  color: rgb(233, 197, 149);
+}
+.header {
+  background-image: url("../img/pumps.jpeg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin: 10em 0 5em 0;
+  text-align: center;
+  padding: 3em;
+  max-height: 10em;
+  color:white;
+}
+.navbar {
+  background-color:aliceblue;
+	width: 100%;
+	position: absolute;
+  top:0;
+  left:0;
+	z-index: 1;
+}
+.navbar ul {
+	height: 50px;
+	float: right;
+}
+.navbar ul li {
+	display: inline-block;
+	padding-top: 40px;
+  padding-right:5em;
+	font-size: 20px;
+  color: black;
+}
+nav ul li a{
+  font-weight:bold;
+}
+.logo{
+  width:auto;
+  max-height:100px;
+}
+h2, h3, h4, h5, h6{
+  text-align: center;
+  margin: 2em;
+}
+a {
+  color:rgb(40, 141, 26);
+  font-weight: bold;
+}
+a:hover{
+  text-decoration:none;
+  color:rgb(9, 255, 0)
+}
+.margin {
+  margin: 2em;
+  padding: 2em;
+}
+.center {
+  text-align: center;
+}
+.row p a {
+  color:rgb(255, 187, 0);
+}
+.row p a:hover {
+  color:rgb(251, 255, 0);
+}
+.col-6 .row{
+  width: fit-content;
+  margin: auto
+}
+.margin ul li {
+  list-style-type: none
+}
+.center p {
+  background-color:rgb(40, 141, 26);
+  border-radius: 1em;
+  padding: 10px;
+  width: 40%;
+  margin: auto;
+  margin-bottom: 5px;
+}
+.center p a {
+  color: white;
+}
+.center p:hover {
+  background-color:rgb(9, 255, 0)
+}
