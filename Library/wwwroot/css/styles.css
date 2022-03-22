@@ -41,7 +41,7 @@ nav ul li a{
 }
 h2, h3, h4, h5, h6{
   text-align: center;
-  margin: 2em;
+  /* margin: 2em; */
 }
 a {
   color:rgb(40, 141, 26);

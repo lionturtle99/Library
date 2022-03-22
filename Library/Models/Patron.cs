@@ -12,7 +12,7 @@ namespace Library.Models
     
     public int PatronId {get; set;}
     public string Name {get; set;}
-    
+    public virtual ApplicationUser User { get; set; }
     public virtual ICollection<BookPatron> JoinEntities { get; set; }
     // public virtual ICollection<BookPatron> History { get; set; }
   }

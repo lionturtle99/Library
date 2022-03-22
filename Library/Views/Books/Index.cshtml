@@ -1,3 +1,95 @@
 @{
   Layout = "_Layout";
 }
+
+@using Library.Models;
+@model List<Library.Models.Book>;
+
+<h1>Library Books</h1>
+
+<div class="row">
+  <div class="col-md-7 col-sm-12">
+    <ul>
+      @foreach(Book book in Model)
+      {
+        @* <li>@Html.ActionLink($"{book.Title}", "Details", new { id = book.BookId })</li> *@
+        <button class="btn btn-secondary my-1" id=@book.BookId-title>@book.Title</button>
+        <br>
+        <script>
+          $("#@book.BookId-title").click(function () {
+            $("#bookTitle").show();
+            $("#bookTitleInput").hide();
+            $("#submitTitleChange").hide();
+            $.ajax({
+              type: "POST",
+              url: '@Url.Action("Details")',
+              data: { 'id': @book.BookId },
+              success: function (result) {
+                $("#bookTitle").text(result.title);
+                $("#bookGenre").text(result.genre);
+                $("#bookPages").text(result.pages);
+                $("#bookId").val(result.bookId);
+              },
+              error: function () {
+                alert("Error while inserting data");
+              }
+            });
+          });
+        </script>
+        
+      }
+    </ul>
+  </div>
+  <div class="col-md-5 col-sm-12">
+    <div class="card">
+      <div class="card-header text-dark">
+        <h2 id="bookTitle"></h2>
+        <input type="text" style="display:none;" id="bookTitleInput" class="form-control">
+        <button id="submitTitleChange" class="btn btn-dark" style="display:none;">Submit change</button>
+        <input type="hidden" id="bookId">
+        <script>
+          $("#bookTitle").click(function() {
+            $("#bookTitle").hide();
+            $("#bookTitleInput").show();
+            $("#submitTitleChange").show();
+          });
+          $("#submitTitleChange").click(function() {
+            //let book = {
+            // let title = $("#bookTitleInput").val();
+            //   Genre: $("#bookGenre").text();
+            //   Pages: $("#bookPages").text();
+            //   BookId: $("#bookId").val()
+            //}
+            $.ajax({
+              type: "POST",
+              url: '@Url.Action("Edit")',
+              data: { 'bookId': $("#bookId").val(), 'title': $("#bookTitleInput").val(), 'genre': $("#bookGenre").text(), 'pages': $("#bookPages").text()},
+              dataType: "json",
+              traditional: true,
+              contentType: 'application/json',
+              success: function (response) {
+                $("#bookTitleInput").hide();
+                $("#submitTitleChange").hide();
+                $("#bookTitle").show();
+                //console.log(response.message);
+              },
+              error: function () {  
+                alert(`Error while updating ${$("#bookTitleInput").val()}`);  
+              }
+            });
+          });
+        </script>
+      </div>
+      <div class="card-body">
+        <div class="card-text text-dark text-center">
+          Genre: <span id="bookGenre"></span>
+          <br>
+          Pages: <span id="bookPages"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p>@Html.ActionLink("Add new book", "Create")</p>
+<p>@Html.ActionLink("Home", "Index", "Home")</p>

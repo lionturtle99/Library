@@ -14,6 +14,7 @@ namespace Library.Models
     public string Genre { get; set; }
     public int Pages { get; set; }
     public int BookId { get; set; }
+    public virtual ApplicationUser User {get; set;}
     public virtual ICollection<BookPatron> JoinEntities { get; set; }
     // public virtual ICollection<BookPatron> History { get; set; }
   }
