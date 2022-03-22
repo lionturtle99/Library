@@ -15,6 +15,9 @@
 
   @Html.LabelFor(model => model.Pages)
   @Html.TextBoxFor(model => model.Pages, new {@type="number", @class="form-control"})
+
+  @Html.LabelFor(model => model.Author)
+  @Html.TextBoxFor(model => model.Author, new {@class="form-control"})
   <input type="submit" value="Add new book" />
 }
 <p>@Html.ActionLink("Show all books", "Index")</p>

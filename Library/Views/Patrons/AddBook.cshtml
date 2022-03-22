@@ -14,7 +14,11 @@
     @Html.HiddenFor(model => model.PatronId)
 
     @Html.Label("Select book")
-    @Html.DropDownList("BookId")
+    <select>
+      @foreach (Book book in ViewBag.Books) {
+        <option id="book-@book.BookId">@book.Title</option>
+      }
+    </select>
 
     <input type="submit" value="Save" />
 }

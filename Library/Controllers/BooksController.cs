@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using System;
 
 namespace Library.Controllers
 {
@@ -35,47 +36,35 @@ namespace Library.Controllers
     }
 
     [HttpPost]
-    public ActionResult Create(Book book)
+    public async Task<ActionResult> Create(Book book)
     {
+      var userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+      var currentUser = await _userManager.FindByIdAsync(userId);
+      book.User = currentUser;
       _db.Books.Add(book);
       _db.SaveChanges();
       return RedirectToAction("Index");
     }
-
-    // public ActionResult Details(int id)
-    // {
-    //     var thisBook = _db.Books
-    //         .Include(book => book.JoinEntities)
-    //         .ThenInclude(join => join.Patron)
-    //         .FirstOrDefault(book => book.BookId == id);
-    //     return View(thisBook);
-    // }
     
-    public JsonResult Details(int id)
+    public ActionResult Details(int id)
     {
-        var thisBook = _db.Books
-            .Include(book => book.JoinEntities)
-            .ThenInclude(join => join.Patron)
-            .FirstOrDefault(book => book.BookId == id);
-      // return Json(new { bookTitle = thisBook.Title, bookGenre = thisBook.Genre, bookPages = thisBook.Pages, bookId = thisBook.BookId }); 
-      return Json(thisBook);
-      
-      
+      Book thisBook = _db.Books
+        .Include(b => b.JoinEntities)
+        .ThenInclude(join => join.Patron)
+        .FirstOrDefault(b => b.BookId == id);
+      Console.WriteLine(thisBook.Title);
+      return Json(new {thisBook});
+      // return View(thisBook);
     }
 
-    public ActionResult Delete(int id)
+    [HttpPost]
+    public ActionResult Delete(int bookId)
     {
-      var thisBook = _db.Books.FirstOrDefault(b => b.BookId == id);
-      return View(thisBook);
-    }
-
-    [HttpPost, ActionName("Delete")]
-    public ActionResult DeleteConfirmed(int id)
-    {
-      var thisBook = _db.Books.FirstOrDefault(b => b.BookId == id);
+      var thisBook = _db.Books.FirstOrDefault(b => b.BookId == bookId);
       _db.Books.Remove(thisBook);
       _db.SaveChanges();
-      return RedirectToAction("Index");
+      string message = "SUCCESS";
+      return Json(new { Message = message });
     }
 
     public ActionResult Edit(int id)
@@ -84,24 +73,31 @@ namespace Library.Controllers
       return View(thisBook);
     }
     [HttpPost]
-    public IActionResult Edit(string title, string genre, int pages, int bookId)
+    public ActionResult Edit(Book book)
     {
-      //Book thisBook = _db.Books.FirstOrDefault(b => b.BookId == bookId);
-      Book thisBook = new Book();
-      thisBook.BookId = bookId;
-      thisBook.Genre = genre;
-      thisBook.Pages = pages;
-      thisBook.Title = title;
-      // _db.Entry(thisBook).State = EntityState.Modified;
-      _db.Update(thisBook);
+      _db.Entry(book).State = EntityState.Modified;
       _db.SaveChanges();
-      string message = "SUCCESS";  
-      return Json(new {Message = message});
+      string message = "SUCCESS";
+      return Json(new { Message = message });
+    }
+
+    public JsonResult GetPatrons()
+    {
+      List<Patron> patronList = _db.Patrons.ToList();
+      return Json(patronList);
+    }
+
+    [HttpPost]
+    public ActionResult AddPatron(Patron patron, int bookId)
+    {
+      if (patron.PatronId != 0)
+      {
+        _db.BookPatron.Add(new BookPatron() {BookId = bookId, PatronId = patron.PatronId});
+      }
+      _db.SaveChanges();
+      //string message = "SUCCESS";
+      // return Json(new { Message = message });
+      return RedirectToAction("Index");
     }
   }
 }
-
-              // Title:$("#bookTitleInput").val(),
-//               Genre: $("#bookGenre").text(),
-//               Pages: $("#bookPages").text(),
-//               BookId: $("#bookId").val()

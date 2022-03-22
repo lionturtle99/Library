@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Library.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Library
 {
@@ -42,6 +44,8 @@ namespace Library
         options.Password.RequireUppercase = false;
         options.Password.RequiredUniqueChars = 0;
       });
+      
+      services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
     }
 
     public void Configure(IApplicationBuilder app)

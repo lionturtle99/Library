@@ -1,7 +1,8 @@
 @{
   Layout = "_Layout";
 }
-
+@using Library.Models;
+@using System.Collections.Generic;
 @model Library.Models.Book;
 
 <h2>Book Details</h2>
@@ -10,18 +11,18 @@
 
 @if(@Model.JoinEntities.Count == 0)
 {
-  <p>This category does not contain any patrons</p>
+  <p>This book does not contain any patrons</p>
 }
 else
 {
-  <h4>Patrons the category contains:</h4>
+  <h4>Patrons the book contains:</h4>
   <ul>
   @foreach(var join in Model.JoinEntities)
   {
-    <li>@join.Book.Title</li>
+    <li>@join.Patron.Name</li>
   }
   </ul>
-}
+ } 
 
 <p>@Html.ActionLink("Back to list of books", "Index")</p>
 <p>@Html.ActionLink("Edit Book", "Edit", new { id = Model.BookId })</p>

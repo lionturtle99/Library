@@ -87,6 +87,9 @@ namespace Library.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<string>("Author")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
                     b.Property<string>("Genre")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 

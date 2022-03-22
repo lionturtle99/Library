@@ -1,84 +1,55 @@
 @{
   Layout = "_Layout";
 }
-
 @using Library.Models;
 @model List<Library.Models.Book>;
 
 <h1>Library Books</h1>
 
 <div class="row">
-  <div class="col-md-7 col-sm-12">
-    <ul>
-      @foreach(Book book in Model)
-      {
-        @* <li>@Html.ActionLink($"{book.Title}", "Details", new { id = book.BookId })</li> *@
-        <button class="btn btn-secondary my-1" id=@book.BookId-title>@book.Title</button>
-        <br>
-        <script>
-          $("#@book.BookId-title").click(function () {
-            $("#bookTitle").show();
-            $("#bookTitleInput").hide();
-            $("#submitTitleChange").hide();
-            $.ajax({
-              type: "POST",
-              url: '@Url.Action("Details")',
-              data: { 'id': @book.BookId },
-              success: function (result) {
-                $("#bookTitle").text(result.title);
-                $("#bookGenre").text(result.genre);
-                $("#bookPages").text(result.pages);
-                $("#bookId").val(result.bookId);
-              },
-              error: function () {
-                alert("Error while inserting data");
+  <div class="col-md-6 col-sm-12">
+    @foreach (Book book in Model)
+    {
+      @* <li>@Html.ActionLink($"{book.Title}", "Details", new { id = book.BookId })</li> *@
+      <button class="btn btn-secondary my-1" id=@book.BookId-title>@book.Title</button>
+      <br>
+      <script>
+        $("#@book.BookId-title").click(function () {
+          $("#bookTitle").show();
+          $("#bookTitleInput").hide();
+          $("#submitTitleChange").hide();
+          $.ajax({
+            type: "GET",
+            url: '@Url.Action("Details")',
+            data: { 'id': @book.BookId },
+            success: function (result) {
+              $("#bookTitle").text(result.thisBook.title);
+              $("#bookGenre").text(result.thisBook.genre);
+              $("#bookPages").text(result.thisBook.pages);
+              $("#bookId").val(result.thisBook.bookId);
+              $("#bookTitleInput").val(result.thisBook.title);
+              $("#detailsCard").show();
+            },
+            error: function (httpObj) {
+              if (httpObj.status==401) {
+                alert("you aren't yet logged in");
+              } else {
+                alert("Error while getting book details");
               }
-            });
+            }
           });
-        </script>
-        
-      }
-    </ul>
+        });
+      </script> 
+    }
   </div>
-  <div class="col-md-5 col-sm-12">
-    <div class="card">
-      <div class="card-header text-dark">
+  <div class="col-md-6 col-sm-12">
+    <div class="card" id="detailsCard" style="display:none;">
+      <div class="card-header text-dark text-center">
         <h2 id="bookTitle"></h2>
         <input type="text" style="display:none;" id="bookTitleInput" class="form-control">
         <button id="submitTitleChange" class="btn btn-dark" style="display:none;">Submit change</button>
         <input type="hidden" id="bookId">
-        <script>
-          $("#bookTitle").click(function() {
-            $("#bookTitle").hide();
-            $("#bookTitleInput").show();
-            $("#submitTitleChange").show();
-          });
-          $("#submitTitleChange").click(function() {
-            //let book = {
-            // let title = $("#bookTitleInput").val();
-            //   Genre: $("#bookGenre").text();
-            //   Pages: $("#bookPages").text();
-            //   BookId: $("#bookId").val()
-            //}
-            $.ajax({
-              type: "POST",
-              url: '@Url.Action("Edit")',
-              data: { 'bookId': $("#bookId").val(), 'title': $("#bookTitleInput").val(), 'genre': $("#bookGenre").text(), 'pages': $("#bookPages").text()},
-              dataType: "json",
-              traditional: true,
-              contentType: 'application/json',
-              success: function (response) {
-                $("#bookTitleInput").hide();
-                $("#submitTitleChange").hide();
-                $("#bookTitle").show();
-                //console.log(response.message);
-              },
-              error: function () {  
-                alert(`Error while updating ${$("#bookTitleInput").val()}`);  
-              }
-            });
-          });
-        </script>
+
       </div>
       <div class="card-body">
         <div class="card-text text-dark text-center">
@@ -87,9 +58,113 @@
           Pages: <span id="bookPages"></span>
         </div>
       </div>
+      <div class="card-footer text-center">
+        <button type="button" class="btn btn-dark" id="rentButtonShowModal" data-bs-toggle="modal" data-bs-target="#rentModal">
+          Rent
+        </button>
+        <button class="btn btn-dark" type="button" id="delete">Delete</button>
+      </div>
     </div>
   </div>
 </div>
+<script>
+  $("#bookTitle").click(function () {
+    $("#bookTitle").hide();
+    $("#bookTitleInput").show();
+    $("#submitTitleChange").show();
+  });
+  $("#submitTitleChange").click(function () {
+    $.ajax({
+      type: "POST",
+      url: '@Url.Action("Edit")',
+      data: { 'bookId': $("#bookId").val(), 'title': $("#bookTitleInput").val(), 'genre': $("#bookGenre").text(), 'pages': $("#bookPages").text() },
+      success: function (response) {
+        $("#bookTitle").text($("#bookTitleInput").val());
+        $("#bookTitleInput").hide();        
+        $("#submitTitleChange").hide();
+        $("#bookTitle").show();
+        $("#" + $("#bookId").val() + "-title").html($("#bookTitleInput").val());
+        $("#bookTitleInput").val("");
+        console.log(response.message);
+      },
+      error: function () {
+        alert(`Error while updating ${$("#bookTitleInput").val()}`);
+      }
+    });
+  });
+</script>
+<script>
+  $("#delete").click(function() {
+    $.ajax({
+      type: "POST",
+      url: '@Url.Action("Delete")',
+      data: { 'bookId':$("#bookId").val()},
+      success: function (response) {
+        $("#" + $("#bookId").val() + "-title").remove();
+        $("#detailsCard").hide();
+      },
+      error: function() {
+        alert(`Error while deleting ${$("#bookTitleInput").val()}`);
+      }
+    })
+  })
+</script>
+<div class="modal fade" id="rentModal" tabindex="-1" aria-labelledby="rentModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rentModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <select id="patronList">
 
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="rentBook">Rent This Book</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $("#rentButtonShowModal").click(function() {
+    $.ajax({
+      type: "GET",
+      url: '@Url.Action("GetPatrons")',
+      success: function (response) {
+        $.each(response.patronList.$values, function(key, element) {
+            alert('key: ' + key + '\n' + 'value: ' + element.Name);
+        });
+        // alert(response.patronList);
+        for(let i = 0; i < 5; i++){
+          console.log(response.patronList[i]);
+          $("#patronList").append(
+            `<option value="${response.patronList[i].patronId}">${response.patronList[i].name}</option>`
+          );
+        }
+      },
+      error: function() {
+        alert(`Error while fetching patrons`);
+      }
+    });
+  });
+</script>
+<script>
+  $("#rentBook").click(function() {
+    $.ajax({
+      type: "POST",
+      url: '@Url.Action("AddPatron")',
+      data: { 'bookId':$("#bookId").val(), 'patronId':$("#patronList").val()},
+      success: function (response) {
+        $("#rentModal").modal('hide');
+      },
+      error: function() {
+        alert(`Error while renting ${$("#bookTitleInput").val()}`);
+      }
+    });
+  });
+</script>
 <p>@Html.ActionLink("Add new book", "Create")</p>
 <p>@Html.ActionLink("Home", "Index", "Home")</p>

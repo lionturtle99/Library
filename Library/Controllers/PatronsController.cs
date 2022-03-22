@@ -44,7 +44,6 @@ namespace Library.Controllers
       var currentUser = await _userManager.FindByIdAsync(userId);
       patron.User = currentUser;
       _db.Patrons.Add(patron);
-      // _db.BookPatron.Add(new BookPatron() {patron = patron.PatronId});
       _db.SaveChanges();
       return RedirectToAction("Index");
     }
@@ -52,7 +51,10 @@ namespace Library.Controllers
     public ActionResult Details(int id)
     {
       ViewBag.PageTitle = "Patron details";
-      var thisPatron = _db.Patrons.Include(patron => patron.JoinEntities).ThenInclude(join => join.Book).FirstOrDefault(patron => patron.PatronId == id);
+      var thisPatron = _db.Patrons
+        .Include(patron => patron.JoinEntities)
+        .ThenInclude(join => join.Book)
+        .FirstOrDefault(patron => patron.PatronId == id);
       return View(thisPatron);
     }
     public ActionResult Edit(int id)
@@ -72,16 +74,17 @@ namespace Library.Controllers
     public ActionResult AddBook(int id)
     {
       var thisPatron = _db.Patrons.FirstOrDefault(patron => patron.PatronId == id);
-      ViewBag.BookId = new SelectList(_db.Books, "BookId", "Name");
+      // ViewBag.BookId = new SelectList(_db.Books, "BookId", "Name");
+      ViewBag.Books = _db.Books.ToList();
       ViewBag.PageTitle = ("Rent a book for " + thisPatron.Name);
       return View(thisPatron);
     }
     [HttpPost]
-    public ActionResult AddBook(Patron patron, int BookId)
+    public ActionResult AddBook(int PatronId, int BookId)
     {
       if (BookId != 0)
       {
-        _db.BookPatron.Add(new BookPatron() {BookId = BookId, PatronId = patron.PatronId});
+        _db.BookPatron.Add(new BookPatron() {BookId = BookId, PatronId = PatronId});
       }
       _db.SaveChanges();
       return RedirectToAction("Index");

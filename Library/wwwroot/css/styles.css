@@ -1,4 +1,4 @@
-body {
+/* body {
   background-color: rgb(34, 29, 29);
   font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   color: rgb(233, 197, 149);
@@ -34,6 +34,7 @@ body {
 }
 nav ul li a{
   font-weight:bold;
+  text-decoration: none;
 }
 .logo{
   width:auto;
@@ -41,7 +42,7 @@ nav ul li a{
 }
 h2, h3, h4, h5, h6{
   text-align: center;
-  /* margin: 2em; */
+  margin: 2em;
 }
 a {
   color:rgb(40, 141, 26);
@@ -84,4 +85,4 @@ a:hover{
 }
 .center p:hover {
   background-color:rgb(9, 255, 0)
-}
+} */
