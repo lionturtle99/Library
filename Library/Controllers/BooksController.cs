@@ -45,15 +45,24 @@ namespace Library.Controllers
       _db.SaveChanges();
       return RedirectToAction("Index");
     }
-    
-    public ActionResult Details(int id)
+
+    public JsonResult Details(int id)
     {
-      Book thisBook = _db.Books
-        .Include(b => b.JoinEntities)
-        .ThenInclude(join => join.Patron)
-        .FirstOrDefault(b => b.BookId == id);
-      Console.WriteLine(thisBook.Title);
-      return Json(new {thisBook});
+      Book thisBook = _db.Books.FirstOrDefault(b => b.BookId == id);
+
+      var listOfJoins = _db.BookPatron.ToList().Where(b => b.BookId == id);
+      // Console.WriteLine("First: " + listOfJoins.Count());
+      var listOfRenters = new List<Patron>{};
+      foreach (var join in listOfJoins) {
+        // Console.WriteLine("Second: " + join.Patron.Name);
+        listOfRenters.Add(
+                new Patron() {
+                  Name = join.Patron.Name,
+                  PatronId = join.Patron.PatronId
+                }
+          );
+      }
+      return Json(new {thisBook = thisBook, listOfRenters = listOfRenters});
       // return View(thisBook);
     }
 
@@ -83,21 +92,32 @@ namespace Library.Controllers
 
     public JsonResult GetPatrons()
     {
-      List<Patron> patronList = _db.Patrons.ToList();
-      return Json(patronList);
+      IEnumerable<Patron> jsonPatron = new List<Patron>();
+      jsonPatron = _db.Patrons.ToList().Select(x =>
+                  new Patron()
+                  {
+                    Name = x.Name,
+                    PatronId = x.PatronId
+                  });
+
+
+      // List<Patron> patronList = _db.Patrons.Include(e => e.JoinEntities).ThenInclude(join => join.Book).ToList();
+      return Json(jsonPatron);
     }
 
     [HttpPost]
-    public ActionResult AddPatron(Patron patron, int bookId)
+    public ActionResult RentToPatron(int patronId, int bookId)
     {
-      if (patron.PatronId != 0)
+      Patron thisPatron = _db.Patrons.FirstOrDefault(book => book.PatronId == patronId);
+      if (thisPatron.PatronId != 0)
       {
-        _db.BookPatron.Add(new BookPatron() {BookId = bookId, PatronId = patron.PatronId});
+        _db.BookPatron.Add(new BookPatron() {BookId = bookId, PatronId = thisPatron.PatronId});
       }
       _db.SaveChanges();
-      //string message = "SUCCESS";
-      // return Json(new { Message = message });
-      return RedirectToAction("Index");
+      string message = "SUCCESS";
+      return Json(new { Message = message, thisPatron = thisPatron });
+      // return RedirectToAction("Index");
     }
+
   }
 }

@@ -1,6 +1,7 @@
 @{
   Layout = "_Layout";
 }
+
 @using Library.Models;
 @model List<Library.Models.Book>;
 
@@ -10,7 +11,6 @@
   <div class="col-md-6 col-sm-12">
     @foreach (Book book in Model)
     {
-      @* <li>@Html.ActionLink($"{book.Title}", "Details", new { id = book.BookId })</li> *@
       <button class="btn btn-secondary my-1" id=@book.BookId-title>@book.Title</button>
       <br>
       <script>
@@ -28,6 +28,11 @@
               $("#bookPages").text(result.thisBook.pages);
               $("#bookId").val(result.thisBook.bookId);
               $("#bookTitleInput").val(result.thisBook.title);
+              $("#listOfRenters").empty();
+              for (let x = 0; x < result.listOfRenters.$values.length; x++) {
+
+                $("#listOfRenters").append(`<li class="list-group-item"><div class="row"><div class="col-8">${result.listOfRenters.$values[x].name}</div><div class="col-4" style="font-size: 30px;"><span id="remove-${result.listOfRenters.$values[x].patronId}-from-${result.thisBook.bookId}">⊠</span></div></div></li>`);
+              }
               $("#detailsCard").show();
             },
             error: function (httpObj) {
@@ -39,7 +44,7 @@
             }
           });
         });
-      </script> 
+      </script>
     }
   </div>
   <div class="col-md-6 col-sm-12">
@@ -56,6 +61,11 @@
           Genre: <span id="bookGenre"></span>
           <br>
           Pages: <span id="bookPages"></span>
+          <br><br>
+          Currently rented to:
+          <ul class="list-group list-group-horizontal" id="listOfRenters">
+            @* <li class="list-group-item">An item</li> *@
+          </ul>
         </div>
       </div>
       <div class="card-footer text-center">
@@ -80,7 +90,7 @@
       data: { 'bookId': $("#bookId").val(), 'title': $("#bookTitleInput").val(), 'genre': $("#bookGenre").text(), 'pages': $("#bookPages").text() },
       success: function (response) {
         $("#bookTitle").text($("#bookTitleInput").val());
-        $("#bookTitleInput").hide();        
+        $("#bookTitleInput").hide();
         $("#submitTitleChange").hide();
         $("#bookTitle").show();
         $("#" + $("#bookId").val() + "-title").html($("#bookTitleInput").val());
@@ -130,18 +140,14 @@
 </div>
 <script>
   $("#rentButtonShowModal").click(function() {
+    $("#patronList").empty();
     $.ajax({
       type: "GET",
       url: '@Url.Action("GetPatrons")',
       success: function (response) {
-        $.each(response.patronList.$values, function(key, element) {
-            alert('key: ' + key + '\n' + 'value: ' + element.Name);
-        });
-        // alert(response.patronList);
-        for(let i = 0; i < 5; i++){
-          console.log(response.patronList[i]);
+        for (let x = 0; x < response.$values.length; x++) {
           $("#patronList").append(
-            `<option value="${response.patronList[i].patronId}">${response.patronList[i].name}</option>`
+            `<option value="${response.$values[x].patronId}">${response.$values[x].name}</option>`
           );
         }
       },
@@ -155,9 +161,10 @@
   $("#rentBook").click(function() {
     $.ajax({
       type: "POST",
-      url: '@Url.Action("AddPatron")',
+      url: '@Url.Action("RentToPatron")',
       data: { 'bookId':$("#bookId").val(), 'patronId':$("#patronList").val()},
       success: function (response) {
+        $("#listOfRenters").append(`<li class="list-group-item">${response.thisPatron.name}</li>`);
         $("#rentModal").modal('hide');
       },
       error: function() {
@@ -168,3 +175,5 @@
 </script>
 <p>@Html.ActionLink("Add new book", "Create")</p>
 <p>@Html.ActionLink("Home", "Index", "Home")</p>
+            
+<script src="~/js/Index.js"></script>
