@@ -19,8 +19,11 @@ namespace Library.Controllers
             _db = db;
         }
 
-        public ActionResult Index()
+        public ActionResult Index(int isLoggedIn = 0)
         {
+            if (isLoggedIn == 1) {
+                ViewBag.IsLoggedIn = "true";
+            } 
             return View();
         }
 
@@ -36,7 +39,16 @@ namespace Library.Controllers
             IdentityResult result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
-                return RedirectToAction("Index");
+                LoginViewModel loginModel = new LoginViewModel();
+                Microsoft.AspNetCore.Identity.SignInResult loginResult = await _signInManager.PasswordSignInAsync(model.Email, model.Password, isPersistent: true, lockoutOnFailure: false);
+                if (loginResult.Succeeded)
+                {
+                    return RedirectToAction("Index", new { isLoggedIn = 1 });
+                }
+                else
+                {
+                    return View();
+                }
             }
             else
             {

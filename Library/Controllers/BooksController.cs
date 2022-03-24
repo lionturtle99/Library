@@ -12,7 +12,7 @@ using System;
 
 namespace Library.Controllers
 {
-  [Authorize]
+  // [Authorize]
   public class BooksController : Controller
   {
     private readonly LibraryContext _db;
@@ -46,10 +46,20 @@ namespace Library.Controllers
       return RedirectToAction("Index");
     }
 
+    [AllowAnonymous]
     public JsonResult Details(int id)
     {
-      Book thisBook = _db.Books.FirstOrDefault(b => b.BookId == id);
-
+      //Book thisBook = _db.Books.FirstOrDefault(b => b.BookId == id);
+      IEnumerable<Book> thisBook = new List<Book>();
+      thisBook = _db.Books.Where(b => b.BookId == id).Select(x =>
+                  new Book()
+                  {
+                    Title = x.Title,
+                    BookId = x.BookId,
+                    Genre = x.Genre,
+                    Author = x.Author,
+                    Pages = x.Pages
+                  });
       var listOfJoins = _db.BookPatron.ToList().Where(b => b.BookId == id);
       // Console.WriteLine("First: " + listOfJoins.Count());
       var listOfRenters = new List<Patron>{};
@@ -99,9 +109,6 @@ namespace Library.Controllers
                     Name = x.Name,
                     PatronId = x.PatronId
                   });
-
-
-      // List<Patron> patronList = _db.Patrons.Include(e => e.JoinEntities).ThenInclude(join => join.Book).ToList();
       return Json(jsonPatron);
     }
 
